@@ -5,7 +5,7 @@
     var tm_ctx = null;
     var tm_center = {};
     var tm_drag = new Object();
-    var tm_isADrag = false;
+    var tm_current = 0;
     var tm_drag_area = {};
     var tm_showOverlay = false;
     var tm_self;
@@ -20,8 +20,8 @@
 
             _init: function() {
                 var timemachine = this.element;
-                timemachine.append(/*'<div id="datepicker"></div>'+*/
-                                   '<div id="clockpicker"></div>'+
+                timemachine.append('<div id="clockpicker"></div>'+
+                                   /*'<div id="datepicker"></div>'+*/
                                    '<div id="digitime"></div>');
             },
 
@@ -59,47 +59,55 @@
                 tm_canvas[0].onmousemove = self.mouseMove;
                 tm_center = {x:tm_canvas[0].height/2,
                              y:tm_canvas[0].height/2};
-                tm_drag.x = tm_center.x;
-                tm_drag.y = 0;
-                tm_drag.current_handle = 0;
+                tm_current=90;
                 tm_drag.handles = {
                     90:{area: [],
-                        x: 0,
+                        x: tm_center.x,
                         y: 0,
                         enabled: false,
                        },
                     70:{area: [],
-                        x: 0,
-                        y: 0,
+                        x: tm_center.x,
+                        y: 200,
                         enabled: false,
                        }
                 };
                 self.render();
                 clockpicker.find('canvas').mouseenter(function(){tm_showOverlay = true;
-                                                                tm_self.render();});
+                                                                 tm_self.render();});
                 clockpicker.find('canvas').mouseleave(function(){tm_showOverlay = false;
-                                                                tm_self.render();});
+                                                                 tm_self.render();});
 
+            },
+
+            setEnabled: function(handle){
+                    tm_drag.handles[70].enabled = false;
+                    tm_drag.handles[90].enabled = true;
             },
 
             mouseDown: function(e){
                 tm_drag.enabled = true;
-                //tm_drag.x = e.clientX-tm_canvas[0].offsetLeft;
-                //tm_drag.y = e.clientY-tm_canvas[0].offsetTop;
-                if (tm_self._union(tm_drag.x, tm_drag.y, tm_drag.handles[90].area)){
+                xy = {x:e.clientX-tm_canvas[0].offsetLeft,
+                      y:e.clientY-tm_canvas[0].offsetTop}
+
+                if (tm_self._union(xy.x,
+                                   xy.y,
+                                   tm_drag.handles[90].area)){
                     tm_drag.handles[70].enabled = false;
                     tm_drag.handles[90].enabled = true;
                     tm_drag.handles[90].x = e.clientX-tm_canvas[0].offsetLeft;
                     tm_drag.handles[90].y = e.clientY-tm_canvas[0].offsetTop;
-                    tm_drag.current_handle = 90;
+                    tm_current = 90;
                 }
-                else if (tm_self._union(tm_drag.x, tm_drag.y, tm_drag.handles[70].area))
+                if (tm_self._union(xy.x,
+                                   xy.y,
+                                   tm_drag.handles[70].area))
                 {
                     tm_drag.handles[90].enabled = false;
                     tm_drag.handles[70].enabled = true;
                     tm_drag.handles[70].x = e.clientX-tm_canvas[0].offsetLeft;
                     tm_drag.handles[70].y = e.clientY-tm_canvas[0].offsetTop;
-                    tm_drag.current_handle = 70;
+                    tm_current = 70;
                 }
                 tm_self.render();
             },
@@ -107,14 +115,15 @@
             mouseUp: function(){
                 tm_drag.handles[90].enabled = false;
                 tm_drag.handles[70].enabled = false;
+                tm_current = 90;
                 tm_drag.enabled = false;
                 tm_self.render();
             },
 
             mouseMove: function(e){
-                if( tm_drag.enabled){
-                    tm_drag.x = e.clientX-tm_canvas[0].offsetLeft;
-                    tm_drag.y = e.clientY-tm_canvas[0].offsetTop;
+                if( tm_drag.enabled){//tm_drag.handles.current==90 || tm_drag.handles.current==70 ){
+                    tm_drag.handles[tm_current].x = e.clientX-tm_canvas[0].offsetLeft;
+                    tm_drag.handles[tm_current].y = e.clientY-tm_canvas[0].offsetTop;
                     tm_self.render();
                 }
             },
@@ -132,15 +141,17 @@
             render_overlay_handle: function(x, y, r){
                 tm_ctx.save();
                 tm_ctx.beginPath();
-                tm_ctx.globalAlpha = 0.8;
+
                 var circle_w = 6;
                 tm_ctx.arc(x, y, circle_w, 0, 2*Math.PI, false);
 
                 if(tm_drag.handles[r].enabled)
                 {
                     tm_ctx.fillStyle = "#ff1111";
+                    tm_ctx.globalAlpha = 0.9;
                 }else{
                     tm_ctx.fillStyle = "#ff4444";
+                    tm_ctx.globalAlpha = 0.8;
                 }
                 tm_ctx.fill();
                 tm_ctx.restore();
@@ -151,8 +162,8 @@
             render_hand: function(x, y, r) {
                 var height = this.options.clockpicker_height/2;
                 tm_ctx.beginPath();
-                var _x = this._transform_by(tm_drag.x,tm_drag.y,r,'x');
-                var _y = this._transform_by(tm_drag.x,tm_drag.y,r,'y');
+                var _x = this._transform_by(x,y,r,'x');
+                var _y = this._transform_by(x,y,r,'y');
                 tm_ctx.moveTo(tm_center.x, tm_center.y);
                 tm_ctx.lineTo(_x, _y);
                 tm_ctx.lineWidth = 2;
@@ -162,7 +173,6 @@
                 if( tm_showOverlay ){
                     this.render_overlay(_x, _y, r);
                 }
-
             },
 
             _union: function(x,y,area) {
@@ -173,11 +183,9 @@
                 tm_ctx.height = tm_center.x*2;
                 this._draw_clockbackground(tm_canvas,tm_ctx);
                 $.each(Object.keys(tm_drag.handles), function(key, value){
-                    //console.log(key, value);
-                    tm_self.render_hand(tm_drag.x, tm_drag.y, value);
+                    console.log(key, value);
+                    tm_self.render_hand(tm_drag.handles[value].x, tm_drag.handles[value].y, value);
                 });
-                //this.render_overlay(70);  
-                //this.render_overlay(90);  
             },
 
             render_overlay: function(x,y,r) {
