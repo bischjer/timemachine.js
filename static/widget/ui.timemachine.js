@@ -9,6 +9,7 @@
     var tm_drag_area = {};
     var tm_showOverlay = false;
     var tm_self;
+    var tm_now = 1200;
 
     $.extend( 
         $.widget( "ui.timemachine", {
@@ -35,7 +36,7 @@
 
             _render_digitime: function(self, t) {
                 var digitime = $('#digitime');
-                digitime.append('12:00');
+                digitime.empty().append(tm_now);
             },
 
             _render_datepicker: function(self, t) {
@@ -46,11 +47,11 @@
 
             _render_clockpicker: function(self, t) {
                 var clockpicker = $('#clockpicker');
-                clockpicker.append('<canvas id="clockcanvas" width="'
-                                   +this.options.clockpicker_height
-                                   +'px" height="'
-                                   +this.options.clockpicker_width
-                                   +'px"></canvas>');
+                clockpicker.append('<canvas id="clockcanvas" width="'+
+                                   this.options.clockpicker_height+
+                                   'px" height="'+
+                                   this.options.clockpicker_width+
+                                   'px"></canvas>');
 
                 tm_canvas =  $('#clockcanvas');
                 tm_ctx = tm_canvas[0].getContext("2d");
@@ -80,7 +81,12 @@
 
             },
 
-            setEnabled: function(handle){
+            updateTime: function(){
+                tm_now = tm_drag.handles[90].x+tm_drag.handles[90].y;
+                tm_self._render_digitime();
+            },
+
+            setEnabled: function(handle){//TODO: this is not in play at the moment
                     tm_drag.handles[70].enabled = false;
                     tm_drag.handles[90].enabled = true;
             },
@@ -116,12 +122,11 @@
                 tm_drag.handles[90].enabled = false;
                 tm_drag.handles[70].enabled = false;
                 tm_current = 90;
-                tm_drag.enabled = false;
                 tm_self.render();
             },
 
             mouseMove: function(e){
-                if( tm_drag.enabled){//tm_drag.handles.current==90 || tm_drag.handles.current==70 ){
+                if( tm_drag.handles[90].enabled || tm_drag.handles[70].enabled ){
                     tm_drag.handles[tm_current].x = e.clientX-tm_canvas[0].offsetLeft;
                     tm_drag.handles[tm_current].y = e.clientY-tm_canvas[0].offsetTop;
                     tm_self.render();
@@ -183,15 +188,19 @@
                 tm_ctx.height = tm_center.x*2;
                 this._draw_clockbackground(tm_canvas,tm_ctx);
                 $.each(Object.keys(tm_drag.handles), function(key, value){
-                    console.log(key, value);
                     tm_self.render_hand(tm_drag.handles[value].x, tm_drag.handles[value].y, value);
                 });
+                tm_self.updateTime();
             },
 
             render_overlay: function(x,y,r) {
                 tm_ctx.save();
                 tm_ctx.beginPath();
-                tm_ctx.globalAlpha = 0.3;
+                if( tm_drag.handles[r].enabled ){
+                    tm_ctx.globalAlpha = 0.3;
+                }else{
+                    tm_ctx.globalAlpha = 0.2;
+                }
                 tm_ctx.arc(tm_center.x, tm_center.y, r, 0, 2*Math.PI, false);
                 tm_ctx.lineWidth = 10;
                 tm_ctx.strokeStyle = "black";
@@ -201,7 +210,6 @@
             },
 
             _draw_clockbackground: function(canvas, ct) {
-                //background
                 ct.save();
                 ct.fillStyle = "#555555";
                 ct.beginPath();
