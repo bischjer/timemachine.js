@@ -9,7 +9,7 @@
     var tm_drag_area = {};
     var tm_showOverlay = false;
     var tm_self;
-    var tm_now = 1200;
+    var tm_now = new Date();
 
     $.extend( 
         $.widget( "ui.timemachine", {
@@ -36,7 +36,7 @@
 
             _render_digitime: function(self, t) {
                 var digitime = $('#digitime');
-                digitime.empty().append(tm_now);
+                digitime.empty().append(tm_now.getHours()+':'+tm_now.getMinutes());
             },
 
             _render_datepicker: function(self, t) {
@@ -66,11 +66,13 @@
                         x: tm_center.x,
                         y: 0,
                         enabled: false,
+                        thickness: 2,
                        },
                     70:{area: [],
                         x: tm_center.x,
                         y: 200,
                         enabled: false,
+                        thickness: 2.5,
                        }
                 };
                 self.render();
@@ -78,34 +80,37 @@
                                                                  tm_self.render();});
                 clockpicker.find('canvas').mouseleave(function(){tm_showOverlay = false;
                                                                  tm_self.render();});
-
+                
             },
 
             angle2Time: function(x1,y1,x2,y2){
                 dx1 = tm_self._deltaXY(x1,y1);
                 dx2 = tm_self._deltaXY(x2,y2);
-
                 th1 = {x: dx1.x/(Math.sqrt(Math.pow(dx1.x,2)+Math.pow(dx1.y,2))),
                        y: dx1.y/(Math.sqrt(Math.pow(dx1.x,2)+Math.pow(dx1.y,2)))}
                 th2 = {x: dx2.x/(Math.sqrt(Math.pow(dx2.x,2)+Math.pow(dx2.y,2))),
-                       y: dx2.x/(Math.sqrt(Math.pow(dx2.x,2)+Math.pow(dx2.y,2)))}
+                       y: dx2.y/(Math.sqrt(Math.pow(dx2.x,2)+Math.pow(dx2.y,2)))}
 
-                if( Math.asin(th1.y) < 0){
-                    tm_min = 60*(Math.acos(th1.x))/(2*Math.PI);
+                if( Math.asin(th1.x) < 0){
+                    tm_min = 60-60*((Math.acos(-th1.y)))/(2*Math.PI);
                 }else{
-                    tm_min = 60*((2*Math.PI-Math.acos(th1.x)))/(2*Math.PI);
+                    tm_min = 60-60*(2*Math.PI-(Math.acos(-th1.y)))/(2*Math.PI);
                 }
 
-                if( Math.asin(th2.y) < 0){
-                    tm_hour = 12*(Math.acos(th2.x))/(2*Math.PI);
+                if( Math.asin(th2.x) < 0){
+                    tm_hour = 12-12*(Math.acos(-th2.y))/(2*Math.PI);
                 }else{
-                    tm_hour = 12*((2*Math.PI-Math.acos(th2.x)))/(2*Math.PI);
+                    tm_hour = 12-12*((2*Math.PI-Math.acos(-th2.y)))/(2*Math.PI);
                 }
-                console.log(tm_hour+':'+tm_min);
+                //tm_now = Math.floor(tm_hour)+':'+Math.floor(tm_min);
+                tm_now.setSeconds(0);
+                tm_now.setHours(tm_hour);
+                tm_now.setMinutes(tm_min);
+                console.log(tm_now);
+                //console.log(Math.floor(tm_hour)+':'+Math.floor(tm_min));
             },
             
             updateTime: function(){
-                tm_now = tm_drag.handles[90].x+tm_drag.handles[90].y+tm_drag.handles[70].x+tm_drag.handles[70].y;
                 tm_self.angle2Time(tm_drag.handles[90].x,
                                    tm_drag.handles[90].y,
                                    tm_drag.handles[70].x,
@@ -197,7 +202,7 @@
                 var _y = this._transform_by(x,y,r,'y');
                 tm_ctx.moveTo(tm_center.x, tm_center.y);
                 tm_ctx.lineTo(_x, _y);
-                tm_ctx.lineWidth = 2;
+                tm_ctx.lineWidth = tm_drag.handles[r].thickness;
                 tm_ctx.strokeStyle = "#000000";
                 tm_ctx.lineCap = "round";
                 tm_ctx.stroke();
@@ -249,24 +254,28 @@
                 ct.fill();
                 ct.restore();
                 //dots // this must be refactored to be dynamic
-                this.dot(ct, 100, 0, 90);  
-                this.dot(ct, 0, 100, 0);  
-                this.dot(ct, 194, 100, 0);  
-                this.dot(ct, 100, 194, 90);  
-                this.dot(ct, 30, 30, 45);  
-                this.dot(ct, 170, 162, 45);  
-                this.dot(ct, 30, 170, -45);  
-                this.dot(ct, 162, 30, -45);  
+                this.dot(ct, 100, 0, 90, 3);  
+                this.dot(ct, 0, 100, 0, 3);  
+                this.dot(ct, 194, 100, 0, 3);  
+                this.dot(ct, 100, 194, 90, 3);  
+                this.dot(ct, 52, 15, 60, 2);  
+                this.dot(ct, 17, 48, 35, 2);  
+                this.dot(ct, 145, 19, -60, 2);  
+                this.dot(ct, 180, 53, -35, 2); 
+ 
+                this.dot(ct, 180, 150, 30, 2);  
+                this.dot(ct, 145, 180, 60, 2);  
 
-
+                this.dot(ct, 17, 150, -30, 2);  
+                this.dot(ct, 52, 180, -60, 2);  
             },
 
-            dot: function(ct, x, y, r) {  
+            dot: function(ct, x, y, r, t) {  
                 ct.save();  
                 ct.translate(x, y);  
                 ct.rotate(r * Math.PI / 180);  
                 ct.fillStyle = "black";  
-                ct.fillRect(0, 0, 6, 2);  
+                ct.fillRect(0, 0, 6, t);  
                 ct.restore();  
             },
 
