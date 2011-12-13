@@ -81,8 +81,35 @@
 
             },
 
+            angle2Time: function(x1,y1,x2,y2){
+                dx1 = tm_self._deltaXY(x1,y1);
+                dx2 = tm_self._deltaXY(x2,y2);
+
+                th1 = {x: dx1.x/(Math.sqrt(Math.pow(dx1.x,2)+Math.pow(dx1.y,2))),
+                       y: dx1.y/(Math.sqrt(Math.pow(dx1.x,2)+Math.pow(dx1.y,2)))}
+                th2 = {x: dx2.x/(Math.sqrt(Math.pow(dx2.x,2)+Math.pow(dx2.y,2))),
+                       y: dx2.x/(Math.sqrt(Math.pow(dx2.x,2)+Math.pow(dx2.y,2)))}
+
+                if( Math.asin(th1.y) < 0){
+                    tm_min = 60*(Math.acos(th1.x))/(2*Math.PI);
+                }else{
+                    tm_min = 60*((2*Math.PI-Math.acos(th1.x)))/(2*Math.PI);
+                }
+
+                if( Math.asin(th2.y) < 0){
+                    tm_hour = 12*(Math.acos(th2.x))/(2*Math.PI);
+                }else{
+                    tm_hour = 12*((2*Math.PI-Math.acos(th2.x)))/(2*Math.PI);
+                }
+                console.log(tm_hour+':'+tm_min);
+            },
+            
             updateTime: function(){
-                tm_now = tm_drag.handles[90].x+tm_drag.handles[90].y;
+                tm_now = tm_drag.handles[90].x+tm_drag.handles[90].y+tm_drag.handles[70].x+tm_drag.handles[70].y;
+                tm_self.angle2Time(tm_drag.handles[90].x,
+                                   tm_drag.handles[90].y,
+                                   tm_drag.handles[70].x,
+                                   tm_drag.handles[70].y);
                 tm_self._render_digitime();
             },
 
@@ -146,7 +173,6 @@
             render_overlay_handle: function(x, y, r){
                 tm_ctx.save();
                 tm_ctx.beginPath();
-
                 var circle_w = 6;
                 tm_ctx.arc(x, y, circle_w, 0, 2*Math.PI, false);
 
