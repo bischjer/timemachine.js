@@ -11,18 +11,24 @@
     var tm_self;
     var tm_now = new Date();
 
-    $.extend( 
+    $.extend(
         $.widget( "ui.timemachine", {
             options: {
                 clockpicker_height: 200,
                 clockpicker_width: 200,
+                container_width: 450,
                 context: null,
             },
 
             _init: function() {
                 var timemachine = this.element;
+                timemachine.css({"width":this.options.container_width+"px",
+                                 "padding":"2px 6px 4px 6px",
+                                 "background":"#a0a0a0",
+                                 "border":"1px solid black"});
+                timemachine.addClass("ui-corner-all");
                 timemachine.append('<div id="clockpicker"></div>'+
-                                   /*'<div id="datepicker"></div>'+*/
+                                   '<div id="datepicker"></div>'+
                                    '<div id="digitime"></div>');
             },
 
@@ -36,13 +42,23 @@
 
             _render_digitime: function(self, t) {
                 var digitime = $('#digitime');
+                digitime.addClass("ui-corner-all");
+                digitime.css({"background":"#ffffff",
+                              "width":tm_self.options.clockpicker_width+"px",
+                              "height": "40px",
+                              "font-size":"26px",
+                              "text-align":"center",
+                             });
                 digitime.empty().append(tm_now.getHours()+':'+tm_now.getMinutes());
             },
 
             _render_datepicker: function(self, t) {
                 var datepicker = $('#datepicker');
                 datepicker.datepicker();
-                datepicker.css({"font-size":"12px"});
+                datepicker.css({"font-size":"13px",
+                                "width":"232px",
+                                "margin-top":"-"+tm_self.options.clockpicker_width+"px",
+                                "margin-left":tm_self.options.clockpicker_width+"px"});
             },
 
             _render_clockpicker: function(self, t) {
@@ -80,7 +96,6 @@
                                                                  tm_self.render();});
                 clockpicker.find('canvas').mouseleave(function(){tm_showOverlay = false;
                                                                  tm_self.render();});
-                
             },
 
             angle2Time: function(x1,y1,x2,y2){
@@ -102,14 +117,12 @@
                 }else{
                     tm_hour = 12-12*((2*Math.PI-Math.acos(-th2.y)))/(2*Math.PI);
                 }
-                //tm_now = Math.floor(tm_hour)+':'+Math.floor(tm_min);
                 tm_now.setSeconds(0);
                 tm_now.setHours(tm_hour);
                 tm_now.setMinutes(tm_min);
                 console.log(tm_now);
-                //console.log(Math.floor(tm_hour)+':'+Math.floor(tm_min));
             },
-            
+
             updateTime: function(){
                 tm_self.angle2Time(tm_drag.handles[90].x,
                                    tm_drag.handles[90].y,
@@ -228,9 +241,9 @@
                 tm_ctx.save();
                 tm_ctx.beginPath();
                 if( tm_drag.handles[r].enabled ){
-                    tm_ctx.globalAlpha = 0.3;
-                }else{
                     tm_ctx.globalAlpha = 0.2;
+                }else{
+                    tm_ctx.globalAlpha = 0.1;
                 }
                 tm_ctx.arc(tm_center.x, tm_center.y, r, 0, 2*Math.PI, false);
                 tm_ctx.lineWidth = 10;
@@ -242,18 +255,18 @@
 
             _draw_clockbackground: function(canvas, ct) {
                 ct.save();
-                ct.fillStyle = "#555555";
-                ct.beginPath();
-                ct.arc(tm_center.x, tm_center.y, 100, 0, Math.PI*2, true);
-                ct.closePath();
                 ct.beginPath();
                 ct.fill();
                 ct.fillStyle = "#ffffff";
-                ct.arc(tm_center.x, tm_center.y, 98, 0, Math.PI*2, true);
+                ct.arc(tm_center.x,
+                       tm_center.y,
+                       tm_self.options.clockpicker_width/2-1,
+                       0,
+                       Math.PI*2, true);
                 ct.closePath();
                 ct.fill();
                 ct.restore();
-                //dots // this must be refactored to be dynamic
+                //dots // this must be refactored to be dynamic and to support user set clocksize
                 this.dot(ct, 100, 0, 90, 3);  
                 this.dot(ct, 0, 100, 0, 3);  
                 this.dot(ct, 194, 100, 0, 3);  
@@ -262,12 +275,10 @@
                 this.dot(ct, 17, 48, 35, 2);  
                 this.dot(ct, 145, 19, -60, 2);  
                 this.dot(ct, 180, 53, -35, 2); 
- 
                 this.dot(ct, 180, 150, 30, 2);  
                 this.dot(ct, 145, 180, 60, 2);  
-
-                this.dot(ct, 17, 150, -30, 2);  
-                this.dot(ct, 52, 180, -60, 2);  
+                this.dot(ct, 15, 148, -30, 2);
+                this.dot(ct, 50, 184, -60, 2);  
             },
 
             dot: function(ct, x, y, r, t) {  
@@ -277,10 +288,6 @@
                 ct.fillStyle = "black";  
                 ct.fillRect(0, 0, 6, t);  
                 ct.restore();  
-            },
-
-            hourAsDegree: function(hour){
-                return hour;
             }
     }), { version: "0.0.1"});
 })(jQuery);
