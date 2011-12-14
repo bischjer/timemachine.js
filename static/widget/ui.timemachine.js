@@ -27,9 +27,9 @@
                                  "background":"#a0a0a0",
                                  "border":"1px solid black"});
                 timemachine.addClass("ui-corner-all");
-                timemachine.append('<div id="clockpicker"></div>'+
-                                   '<div id="datepicker"></div>'+
-                                   '<div id="digitime"></div>');
+                timemachine.append('<div id="tm_clockpicker"></div>'+
+                                   '<div id="tm_datepicker"></div>'+
+                                   '<div id="tm_digitime"></div>');
             },
 
             _create: function() {
@@ -41,7 +41,7 @@
             },
 
             _render_digitime: function(self, t) {
-                var digitime = $('#digitime');
+                var digitime = $('#tm_digitime');
                 digitime.addClass("ui-corner-all");
                 digitime.css({"background":"#ffffff",
                               "width":tm_self.options.clockpicker_width+"px",
@@ -53,7 +53,7 @@
             },
 
             _render_datepicker: function(self, t) {
-                var datepicker = $('#datepicker');
+                var datepicker = $('#tm_datepicker');
                 datepicker.datepicker();
                 datepicker.css({"font-size":"13px",
                                 "width":"232px",
@@ -62,7 +62,7 @@
             },
 
             _render_clockpicker: function(self, t) {
-                var clockpicker = $('#clockpicker');
+                var clockpicker = $('#tm_clockpicker');
                 clockpicker.append('<canvas id="clockcanvas" width="'+
                                    this.options.clockpicker_height+
                                    'px" height="'+
