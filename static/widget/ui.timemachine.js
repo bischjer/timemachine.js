@@ -1,4 +1,3 @@
-
 (function( $, undefined ){
     var tm_timemachine = null;
     var tm_canvas = null;
@@ -22,7 +21,7 @@
 
             _init: function() {
                 var timemachine = this.element;
-                timemachine.css({"width":this.options.container_width+"px",
+                timemachine.css({"width":(this.options.container_width-48)+"px",
                                  "padding":"2px 6px 4px 6px",
                                  "background":"#a0a0a0",
                                  "border":"1px solid black"});
@@ -43,32 +42,47 @@
             _render_digitime: function(self, t) {
                 var digitime = $('#tm_digitime');
                 digitime.addClass("ui-corner-all");
-                digitime.css({"background":"#ffffff",
-                              "width":tm_self.options.clockpicker_width+"px",
-                              "height": "40px",
+                digitime.css({"background":"#dedede",
+                              "margin-top":"2px",
+                              "width":(tm_self.options.clockpicker_width-5)+"px",
+                              "height": "47px",
                               "font-size":"26px",
                               "text-align":"center",
+                              "margin-left":(tm_self.options.clockpicker_width+10)+"px",
                              });
-                digitime.empty().append(tm_now.getHours()+':'+tm_now.getMinutes());
+                digitime.append('<div id="h1" style="background:#ffffff;"></div>'+
+                                '<div id="h2" style="background:#ffffff;"></div>'+
+                                '<div id="m1" style="background:#ffffff;"></div>'+
+                                '<div id="m2" style="background:#ffffff;"></div>');
+                //digitime.empty().append(tm_now.getHours()+':'+tm_now.getMinutes());
+                if( tm_now.getHours()<10)
+                    digitime.find('#h1').empty().append('0');
+                digitime.find('#h2').empty().append(tm_now.getHours());
+                if( tm_now.getMinutes()<10)
+                    digitime.find('#m1').empty().append('0');
+                digitime.find('#m2').empty().append(tm_now.getMinutes());
             },
 
             _render_datepicker: function(self, t) {
                 var datepicker = $('#tm_datepicker');
                 datepicker.datepicker();
-                datepicker.css({"font-size":"13px",
+                datepicker.css({"font-size":"10px",
                                 "width":"232px",
-                                "margin-top":"-"+tm_self.options.clockpicker_width+"px",
-                                "margin-left":tm_self.options.clockpicker_width+"px"});
+                                "margin-top":"-"+(tm_self.options.clockpicker_width+13.5)+"px",
+                                "margin-left":(tm_self.options.clockpicker_width+10)+"px"});
             },
 
             _render_clockpicker: function(self, t) {
                 var clockpicker = $('#tm_clockpicker');
+                clockpicker.css({"width":self.options.clockpicker_height+"px",
+                                 "padding":"4px",
+                                 "background":"#ffffff"});
+                clockpicker.addClass("ui-corner-all");
                 clockpicker.append('<canvas id="clockcanvas" width="'+
                                    this.options.clockpicker_height+
                                    'px" height="'+
                                    this.options.clockpicker_width+
                                    'px"></canvas>');
-
                 tm_canvas =  $('#clockcanvas');
                 tm_ctx = tm_canvas[0].getContext("2d");
                 tm_canvas[0].onmousedown = self.mouseDown;
@@ -257,7 +271,9 @@
                 ct.save();
                 ct.beginPath();
                 ct.fill();
-                ct.fillStyle = "#ffffff";
+                ct.fillStyle = "#d0d0d0";
+                ct.lineWidth="2";
+                
                 ct.arc(tm_center.x,
                        tm_center.y,
                        tm_self.options.clockpicker_width/2-1,
@@ -281,12 +297,12 @@
                 this.dot(ct, 50, 184, -60, 2);  
             },
 
-            dot: function(ct, x, y, r, t) {  
+            dot: function(ct,x,y,r,t) {  
                 ct.save();  
-                ct.translate(x, y);  
-                ct.rotate(r * Math.PI / 180);  
-                ct.fillStyle = "black";  
-                ct.fillRect(0, 0, 6, t);  
+                ct.translate(x,y);  
+                ct.rotate(r*Math.PI/180);  
+                ct.fillStyle="black";  
+                ct.fillRect(0,0,6,t);  
                 ct.restore();  
             }
     }), { version: "0.0.1"});
