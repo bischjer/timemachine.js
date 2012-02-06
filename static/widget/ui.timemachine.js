@@ -23,7 +23,7 @@
                 var timemachine = this.element;
                 timemachine.css({"width":(this.options.container_width-48)+"px",
                                  "padding":"2px 6px 4px 6px",
-                                 "background":"#a0a0a0",
+                                 "background":"#cccccc",
                                  "border":"1px solid black"});
                 timemachine.addClass("ui-corner-all");
                 timemachine.append('<div id="tm_clockpicker"></div>'+
@@ -42,19 +42,23 @@
             _render_digitime: function(self, t) {
                 var digitime = $('#tm_digitime');
                 digitime.addClass("ui-corner-all");
-                digitime.css({"background":"#dedede",
+                digitime.css({"background":"#ffffff",
                               "margin-top":"2px",
-                              "width":(tm_self.options.clockpicker_width-5)+"px",
-                              "height": "47px",
+                              "padding-top": "5px",
+                              "width":(tm_self.options.clockpicker_width-9)+"px",
+                              "height": "40px",
                               "font-size":"26px",
                               "text-align":"center",
-                              "margin-left":(tm_self.options.clockpicker_width+10)+"px",
+                              "margin-left":(tm_self.options.clockpicker_width+11)+"px",
                              });
-                digitime.append('<div id="h1" style="background:#ffffff;"></div>'+
-                                '<div id="h2" style="background:#ffffff;"></div>'+
-                                '<div id="m1" style="background:#ffffff;"></div>'+
-                                '<div id="m2" style="background:#ffffff;"></div>');
-                //digitime.empty().append(tm_now.getHours()+':'+tm_now.getMinutes());
+
+                hour1_flip = '<div id="h1" style="background:#ffffff; display:inline;"></div>';
+                hour2_flip = '<div id="h2" style="background:#ffffff; display:inline; "></div>';
+                divider_flip = '<div id="d1" style="background:#ffffff; display:inline; ">:</div>';
+                minute1_flip = '<div id="m1" style="background:#ffffff; display:inline;"></div>';
+                minute2_flip = '<div id="m2" style="background:#ffffff; display:inline;"></div>';
+                digitime.empty().append(hour1_flip+hour2_flip+divider_flip+minute1_flip+minute2_flip);
+
                 if( tm_now.getHours()<10)
                     digitime.find('#h1').empty().append('0');
                 digitime.find('#h2').empty().append(tm_now.getHours());
@@ -271,18 +275,28 @@
                 ct.save();
                 ct.beginPath();
                 ct.fill();
-                ct.fillStyle = "#d0d0d0";
-                ct.lineWidth="2";
-                
+                lingrad = ct.createLinearGradient(0,0,0,150);
+                lingrad.addColorStop(0, '#ededed');
+                lingrad.addColorStop(0.65, '#ededed');
+                lingrad.addColorStop(0.65, '#e9e9e9');
+                lingrad.addColorStop(1, '#ececec');
+
+                ct.fillStyle = lingrad;//"#d0d0d0";//solid color
+
+
                 ct.arc(tm_center.x,
                        tm_center.y,
                        tm_self.options.clockpicker_width/2-1,
                        0,
                        Math.PI*2, true);
+                ct.lineWidth=2;
+                ct.strokeStyle = "#d3d3d3";
+                ct.stroke();
                 ct.closePath();
                 ct.fill();
                 ct.restore();
                 //dots // this must be refactored to be dynamic and to support user set clocksize
+                /*
                 this.dot(ct, 100, 0, 90, 3);  
                 this.dot(ct, 0, 100, 0, 3);  
                 this.dot(ct, 194, 100, 0, 3);  
@@ -295,15 +309,31 @@
                 this.dot(ct, 145, 180, 60, 2);  
                 this.dot(ct, 15, 148, -30, 2);
                 this.dot(ct, 50, 184, -60, 2);  
+                */
+                this._numbers(ct, 88, 25, "12");
+                this._numbers(ct, 180, 108, "3");
+                this._numbers(ct, 94, 195, "6");
+                this._numbers(ct, 10, 108, "9");
             },
 
-            dot: function(ct,x,y,r,t) {  
-                ct.save();  
-                ct.translate(x,y);  
-                ct.rotate(r*Math.PI/180);  
-                ct.fillStyle="black";  
-                ct.fillRect(0,0,6,t);  
-                ct.restore();  
+            _numbers: function(ct, x, y, number){
+                ct.save();
+                ct.font = "18pt Arial";
+
+
+                ct.translate(x,y);
+
+                ct.mozDrawText(number);
+                ct.restore();
+            },
+
+            dot: function(ct,x,y,r,t) {
+                ct.save();
+                ct.translate(x,y);
+                ct.rotate(r*Math.PI/180);
+                ct.fillStyle="black";
+                ct.fillRect(0,0,6,t);
+                ct.restore();
             }
     }), { version: "0.0.1"});
 })(jQuery);
