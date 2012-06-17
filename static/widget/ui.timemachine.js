@@ -24,56 +24,15 @@
                 timemachine.css({"width":(this.options.container_width-48)+"px",
                                  "padding":"2px 6px 4px 6px",
                                  "background":"#cccccc",
-                                 "border":"1px solid black"});
+                                 "border":"0px solid black"});
                 timemachine.addClass("ui-corner-all");
-                timemachine.append('<div id="tm_clockpicker"></div>'+
-                                   '<div id="tm_datepicker"></div>'+
-                                   '<div id="tm_digitime"></div>');
+                timemachine.append('<div id="tm_clockpicker"></div>');
             },
 
             _create: function() {
                 tm_self = this;
                 this._init();
-                this._render_datepicker(this, tm_timemachine);
                 this._render_clockpicker(this, tm_timemachine);
-                this._render_digitime(this, tm_timemachine);
-            },
-
-            _render_digitime: function(self, t) {
-                var digitime = $('#tm_digitime');
-                digitime.addClass("ui-corner-all");
-                digitime.css({"background":"#ffffff",
-                              "margin-top":"2px",
-                              "padding-top": "5px",
-                              "width":(tm_self.options.clockpicker_width-9)+"px",
-                              "height": "40px",
-                              "font-size":"26px",
-                              "text-align":"center",
-                              "margin-left":(tm_self.options.clockpicker_width+11)+"px",
-                             });
-
-                hour1_flip = '<div id="h1" style="background:#ffffff; display:inline;"></div>';
-                hour2_flip = '<div id="h2" style="background:#ffffff; display:inline; "></div>';
-                divider_flip = '<div id="d1" style="background:#ffffff; display:inline; ">:</div>';
-                minute1_flip = '<div id="m1" style="background:#ffffff; display:inline;"></div>';
-                minute2_flip = '<div id="m2" style="background:#ffffff; display:inline;"></div>';
-                digitime.empty().append(hour1_flip+hour2_flip+divider_flip+minute1_flip+minute2_flip);
-
-                if( tm_now.getHours()<10)
-                    digitime.find('#h1').empty().append('0');
-                digitime.find('#h2').empty().append(tm_now.getHours());
-                if( tm_now.getMinutes()<10)
-                    digitime.find('#m1').empty().append('0');
-                digitime.find('#m2').empty().append(tm_now.getMinutes());
-            },
-
-            _render_datepicker: function(self, t) {
-                var datepicker = $('#tm_datepicker');
-                datepicker.datepicker();
-                datepicker.css({"font-size":"10px",
-                                "width":"232px",
-                                "margin-top":"-"+(tm_self.options.clockpicker_width+13.5)+"px",
-                                "margin-left":(tm_self.options.clockpicker_width+10)+"px"});
             },
 
             _render_clockpicker: function(self, t) {
@@ -146,7 +105,6 @@
                                    tm_drag.handles[90].y,
                                    tm_drag.handles[70].x,
                                    tm_drag.handles[70].y);
-                tm_self._render_digitime();
             },
 
             setEnabled: function(handle){//TODO: this is not in play at the moment
@@ -296,7 +254,7 @@
                 ct.fill();
                 ct.restore();
                 //dots // this must be refactored to be dynamic and to support user set clocksize
-                /*
+
                 this.dot(ct, 100, 0, 90, 3);  
                 this.dot(ct, 0, 100, 0, 3);  
                 this.dot(ct, 194, 100, 0, 3);  
@@ -309,11 +267,12 @@
                 this.dot(ct, 145, 180, 60, 2);  
                 this.dot(ct, 15, 148, -30, 2);
                 this.dot(ct, 50, 184, -60, 2);  
-                */
+                /*
                 this._numbers(ct, 88, 25, "12");
                 this._numbers(ct, 180, 108, "3");
                 this._numbers(ct, 94, 195, "6");
                 this._numbers(ct, 10, 108, "9");
+                */
             },
 
             _numbers: function(ct, x, y, number){
